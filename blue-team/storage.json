@@ -1,0 +1,39 @@
+{
+  "hats": [
+    {
+      "id": 1,
+      "name": "Team Captain",
+      "price": 150,
+      "quantity": 5,
+      "rarity": "legendary"
+    },
+    {
+      "id": 2,
+      "name": "Unusual Burning Flames",
+      "price": 300,
+      "quantity": 0,
+      "rarity": "unusual"
+    },
+    {
+      "id": 3,
+      "name": "Gibus",
+      "price": 10,
+      "quantity": 42,
+      "rarity": "common"
+    },
+    {
+      "id": 4,
+      "name": "Bill's Hat",
+      "price": 75,
+      "quantity": 10,
+      "rarity": "rare"
+    },
+    {
+      "id": 5,
+      "name": "Towering Pillar",
+      "price": 45,
+      "quantity": 15,
+      "rarity": "uncommon"
+    }
+  ]
+}

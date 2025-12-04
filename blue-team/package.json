@@ -1,0 +1,19 @@
+{
+  "name": "blue-team",
+  "version": "1.0.0",
+  "description": "TF2 Hat Trading - Beta Server",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": ["tf2", "hats", "websocket", "rest-api"],
+  "author": "Team Blue",
+  "license": "MIT",
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "engines": {
+    "node": "20.10.0"
+  }
+}
