@@ -4,36 +4,31 @@
       "id": 1,
       "name": "Team Captain",
       "price": 150,
-      "quantity": 5,
-      "rarity": "legendary"
+      "image": "Team_Captain.png"
     },
     {
       "id": 2,
       "name": "Unusual Burning Flames",
       "price": 300,
-      "quantity": 0,
-      "rarity": "unusual"
+      "image": "Burning_Flames.png"
     },
     {
       "id": 3,
       "name": "Gibus",
       "price": 10,
-      "quantity": 42,
-      "rarity": "common"
+      "image": "Ghostly_Gibus.png"
     },
     {
       "id": 4,
       "name": "Bill's Hat",
       "price": 75,
-      "quantity": 10,
-      "rarity": "rare"
+      "image": "Bills_Hat.png"
     },
     {
       "id": 5,
       "name": "Towering Pillar",
       "price": 45,
-      "quantity": 15,
-      "rarity": "uncommon"
+      "image": "Towering_Pillar.png"
     }
   ]
 }

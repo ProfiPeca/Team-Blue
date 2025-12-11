@@ -3,8 +3,8 @@ const fs = require('fs');
 const path = require('path');
 const { WebSocketServer } = require('ws');
 
-const PORT = 3000;
-const WS_PORT = 3001;
+const PORT = 3002; // Změněno na 3002 kvůli červenému týmu
+const WS_PORT = 3003;
 
 // Inicializace storage souborů
 const STORAGE_FILE = 'storage.json';
@@ -14,11 +14,11 @@ function initStorage() {
   if (!fs.existsSync(STORAGE_FILE)) {
     const defaultHats = {
       hats: [
-        { id: 1, name: "Team Captain", price: 150, quantity: 5, rarity: "legendary" },
-        { id: 2, name: "Unusual Burning Flames", price: 300, quantity: 2, rarity: "unusual" },
-        { id: 3, name: "Gibus", price: 10, quantity: 50, rarity: "common" },
-        { id: 4, name: "Bill's Hat", price: 75, quantity: 10, rarity: "rare" },
-        { id: 5, name: "Towering Pillar", price: 45, quantity: 15, rarity: "uncommon" }
+        { id: 1, name: "Team Captain", price: 150, image: "Team_Captain.png" },
+        { id: 2, name: "Unusual Burning Flames", price: 300, image: "Burning_Flames.png" },
+        { id: 3, name: "Gibus", price: 10, image: "Ghostly_Gibus.png" },
+        { id: 4, name: "Bill's Hat", price: 75, image: "Bills_Hat.png" },
+        { id: 5, name: "Towering Pillar", price: 45, image: "Towering_Pillar.png" }
       ]
     };
     fs.writeFileSync(STORAGE_FILE, JSON.stringify(defaultHats, null, 2));
@@ -26,6 +26,11 @@ function initStorage() {
   
   if (!fs.existsSync(TRANSACTIONS_FILE)) {
     fs.writeFileSync(TRANSACTIONS_FILE, JSON.stringify({ transactions: [] }, null, 2));
+  }
+  
+  // Vytvoř složku pro obrázky pokud neexistuje
+  if (!fs.existsSync('public/images')) {
+    fs.mkdirSync('public/images', { recursive: true });
   }
 }
 
@@ -72,14 +77,14 @@ const server = http.createServer((req, res) => {
     return;
   }
   
-  // REST API - GET zobrazení skladových zásob
+  // REST API - GET zobrazení skladových zásob (pro červený tým)
   if (url.pathname === '/api/hats' && req.method === 'GET') {
     try {
       const storage = JSON.parse(fs.readFileSync(STORAGE_FILE, 'utf8'));
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({
         success: true,
-        data: storage.hats,
+        data: storage.hats, // Červený tým očekává pole v data
         total: storage.hats.length
       }));
     } catch (error) {
@@ -103,28 +108,32 @@ const server = http.createServer((req, res) => {
           return;
         }
         
-        const storage = JSON.parse(fs.readFileSync(STORAGE_FILE, 'utf8'));
-        const hat = storage.hats.find(h => h.id === hatId);
+        // Ošetření záporných čísel
+        if (quantity <= 0) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ success: false, error: 'Množství musí být kladné číslo' }));
+          return;
+        }
         
-        if (!hat) {
+        const storage = JSON.parse(fs.readFileSync(STORAGE_FILE, 'utf8'));
+        const hatIndex = storage.hats.findIndex(h => h.id === hatId);
+        
+        if (hatIndex === -1) {
           res.writeHead(404, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({ success: false, error: 'Čepička nenalezena' }));
           return;
         }
         
-        if (hat.quantity < quantity) {
-          res.writeHead(400, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ 
-            success: false, 
-            error: 'Nedostatečné množství na skladě',
-            available: hat.quantity
-          }));
-          return;
-        }
+        const hat = storage.hats[hatIndex];
         
-        // Proveď nákup
-        hat.quantity -= quantity;
+        // Proveď nákup - odeber item ze skladových zásob
         const totalPrice = hat.price * quantity;
+        
+        // Zvýš cenu o 1 klíč
+        hat.price += 1;
+        
+        // Odeber item ze storage (červený si ho vezme celý)
+        storage.hats.splice(hatIndex, 1);
         
         // Ulož změny
         fs.writeFileSync(STORAGE_FILE, JSON.stringify(storage, null, 2));
@@ -137,7 +146,7 @@ const server = http.createServer((req, res) => {
           hatName: hat.name,
           quantity,
           totalPrice,
-          buyer: buyer || 'anonymous',
+          buyer: buyer || 'Red Team',
           timestamp: new Date().toISOString()
         });
         fs.writeFileSync(TRANSACTIONS_FILE, JSON.stringify(transactions, null, 2));
@@ -146,8 +155,7 @@ const server = http.createServer((req, res) => {
         broadcastUpdate('purchase', {
           hat: hat.name,
           quantity,
-          remainingStock: hat.quantity,
-          buyer: buyer || 'anonymous'
+          buyer: buyer || 'Red Team'
         });
         
         res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -158,7 +166,7 @@ const server = http.createServer((req, res) => {
             hat: hat.name,
             quantity,
             totalPrice,
-            remainingStock: hat.quantity
+            image: hat.image
           }
         }));
       } catch (error) {
@@ -169,32 +177,39 @@ const server = http.createServer((req, res) => {
     return;
   }
   
-  // WEBHOOK - Příjem událostí z Alfa týmu
-  if (url.pathname === '/webhook/alpha' && req.method === 'POST') {
+  // WEBHOOK - Příjem produktů od červeného týmu
+  if (url.pathname === '/webhook/red' && req.method === 'POST') {
     let body = '';
     req.on('data', chunk => body += chunk);
     req.on('end', () => {
       try {
         const event = JSON.parse(body);
-        console.log('Webhook z Alfa týmu:', event);
+        console.log('Webhook od červeného týmu:', event);
         
-        // Zpracuj událost z Alfy
-        if (event.type === 'restock') {
+        // Zpracuj nový produkt od červených
+        if (event.type === 'new_product') {
           const storage = JSON.parse(fs.readFileSync(STORAGE_FILE, 'utf8'));
-          const hat = storage.hats.find(h => h.id === event.hatId);
           
-          if (hat) {
-            hat.quantity += event.quantity;
-            fs.writeFileSync(STORAGE_FILE, JSON.stringify(storage, null, 2));
-            
-            // Broadcast restock update
-            broadcastUpdate('restock', {
-              hat: hat.name,
-              addedQuantity: event.quantity,
-              newStock: hat.quantity,
-              source: 'Alpha Team'
-            });
-          }
+          // Najdi nejvyšší ID
+          const maxId = storage.hats.reduce((max, h) => Math.max(max, h.id), 0);
+          
+          // Přidej nový produkt
+          const newHat = {
+            id: maxId + 1,
+            name: event.name,
+            price: event.price,
+            image: event.image || 'default.png'
+          };
+          
+          storage.hats.push(newHat);
+          fs.writeFileSync(STORAGE_FILE, JSON.stringify(storage, null, 2));
+          
+          // Broadcast update
+          broadcastUpdate('new_product', {
+            hat: newHat.name,
+            price: newHat.price,
+            source: 'Red Team'
+          });
         }
         
         res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -211,6 +226,24 @@ const server = http.createServer((req, res) => {
     return;
   }
   
+  // Obrázky
+  if (url.pathname.startsWith('/images/') && req.method === 'GET') {
+    const imagePath = path.join('public', url.pathname);
+    
+    fs.readFile(imagePath, (err, content) => {
+      if (err) {
+        res.writeHead(404);
+        res.end('Obrázek nenalezen');
+      } else {
+        const ext = path.extname(imagePath);
+        const contentType = ext === '.png' ? 'image/png' : ext === '.jpg' || ext === '.jpeg' ? 'image/jpeg' : 'image/png';
+        res.writeHead(200, { 'Content-Type': contentType });
+        res.end(content);
+      }
+    });
+    return;
+  }
+  
   // Statické soubory (frontend)
   if (req.method === 'GET') {
     let filePath = url.pathname === '/' ? '/index.html' : url.pathname;
@@ -221,7 +254,8 @@ const server = http.createServer((req, res) => {
       '.html': 'text/html',
       '.css': 'text/css',
       '.js': 'text/javascript',
-      '.json': 'application/json'
+      '.json': 'application/json',
+      '.png': 'image/png'
     };
     
     const contentType = contentTypes[extname] || 'text/plain';
@@ -257,6 +291,6 @@ server.listen(PORT, () => {
   console.log(`\nDostupné endpointy:`);
   console.log(`   GET  /api/hats          - Zobrazení skladových zásob`);
   console.log(`   POST /api/hats/buy      - Nákup čepičky`);
-  console.log(`   POST /webhook/alpha     - Webhook pro Alfa tým`);
+  console.log(`   POST /webhook/red       - Webhook pro červený tým`);
   console.log(`\nFrontend: http://localhost:${PORT}`);
 });

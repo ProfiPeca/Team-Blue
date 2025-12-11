@@ -3,46 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Team Blue - TF2 Hat Trading</title>
+  <title>Team BLU - TF2 Hat Trading</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>Team Blue Hat Shop</h1>
-      <p class="subtitle">TF2 Hat Trading - Beta Server</p>
-      <div class="connection-status">
-        <span id="wsStatus" class="status-indicator offline">Offline</span>
-      </div>
-    </header>
-
-    <div class="notifications" id="notifications"></div>
-
-    <main>
-      <section class="stats">
-        <div class="stat-card">
-          <h3>Celkem čepiček</h3>
-          <p id="totalHats" class="stat-value">0</p>
-        </div>
-        <div class="stat-card">
-          <h3>Skladová hodnota</h3>
-          <p id="totalValue" class="stat-value">0 keys</p>
-        </div>
-        <div class="stat-card">
-          <h3>Aktivní připojení</h3>
-          <p id="activeConnections" class="stat-value">1</p>
-        </div>
-      </section>
-
-      <section class="hats-grid" id="hatsGrid">
-        <p class="loading">Načítání skladových zásob...</p>
-      </section>
-    </main>
-
-    <footer>
-      <p>Team Blue 2025 | WebSocket Live Updates Enabled</p>
-    </footer>
-  </div>
+  <header>
+    <img class="logo" src="/teamblu.png" alt="Team BLU logo">
+    <h1>Team BLU</h1>
+  </header>
+  
+  <main id="main">
+    <h1>Team BLU Backpack</h1>
+    <div id="stock" class="itemcontainer"></div>
+  </main>
 
   <script src="client.js"></script>
 </body>
