@@ -3,12 +3,13 @@ const fs = require('fs');
 const path = require('path');
 const { WebSocketServer } = require('ws');
 
-const PORT = 3002; // Změněno na 3002 kvůli červenému týmu
+const PORT = 3002;
 const WS_PORT = 3003;
 
-// Inicializace storage souborů
+// Storage soubory
 const STORAGE_FILE = 'storage.json';
 const TRANSACTIONS_FILE = 'transactions.json';
+const FUNDS_FILE = 'funds.json';
 
 function initStorage() {
   if (!fs.existsSync(STORAGE_FILE)) {
@@ -28,13 +29,16 @@ function initStorage() {
     fs.writeFileSync(TRANSACTIONS_FILE, JSON.stringify({ transactions: [] }, null, 2));
   }
   
-  // Vytvoř složku pro obrázky pokud neexistuje
+  if (!fs.existsSync(FUNDS_FILE)) {
+    fs.writeFileSync(FUNDS_FILE, JSON.stringify({ funds: 500 }, null, 2));
+  }
+  
   if (!fs.existsSync('public/images')) {
     fs.mkdirSync('public/images', { recursive: true });
   }
 }
 
-// WebSocket server pro real-time updaty
+// WebSocket server
 const wss = new WebSocketServer({ port: WS_PORT });
 const clients = new Set();
 
@@ -42,9 +46,14 @@ wss.on('connection', (ws) => {
   console.log('Nový WebSocket klient připojen');
   clients.add(ws);
   
-  // Pošli aktuální stav při připojení
   const storage = JSON.parse(fs.readFileSync(STORAGE_FILE, 'utf8'));
-  ws.send(JSON.stringify({ type: 'init', data: storage.hats }));
+  const fundsData = JSON.parse(fs.readFileSync(FUNDS_FILE, 'utf8'));
+  
+  ws.send(JSON.stringify({ 
+    type: 'init', 
+    data: storage.hats,
+    funds: fundsData.funds 
+  }));
   
   ws.on('close', () => {
     clients.delete(ws);
@@ -52,21 +61,25 @@ wss.on('connection', (ws) => {
   });
 });
 
-// Broadcast funkce pro všechny připojené klienty
 function broadcastUpdate(type, data) {
-  const message = JSON.stringify({ type, data, timestamp: new Date().toISOString() });
+  const fundsData = JSON.parse(fs.readFileSync(FUNDS_FILE, 'utf8'));
+  const message = JSON.stringify({ 
+    type, 
+    data, 
+    funds: fundsData.funds,
+    timestamp: new Date().toISOString() 
+  });
   clients.forEach(client => {
-    if (client.readyState === 1) { // OPEN
+    if (client.readyState === 1) {
       client.send(message);
     }
   });
 }
 
-// HTTP Server s REST API
+// HTTP Server
 const server = http.createServer((req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
   
-  // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -77,15 +90,18 @@ const server = http.createServer((req, res) => {
     return;
   }
   
-  // REST API - GET zobrazení skladových zásob (pro červený tým)
+  // GET /api/hats - zobrazení skladových zásob
   if (url.pathname === '/api/hats' && req.method === 'GET') {
     try {
       const storage = JSON.parse(fs.readFileSync(STORAGE_FILE, 'utf8'));
+      const fundsData = JSON.parse(fs.readFileSync(FUNDS_FILE, 'utf8'));
+      
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({
         success: true,
-        data: storage.hats, // Červený tým očekává pole v data
-        total: storage.hats.length
+        data: storage.hats,
+        total: storage.hats.length,
+        funds: fundsData.funds
       }));
     } catch (error) {
       res.writeHead(500, { 'Content-Type': 'application/json' });
@@ -94,7 +110,7 @@ const server = http.createServer((req, res) => {
     return;
   }
   
-  // REST API - POST nákup čepičky
+  // POST /api/hats/buy - nákup čepičky
   if (url.pathname === '/api/hats/buy' && req.method === 'POST') {
     let body = '';
     req.on('data', chunk => body += chunk);
@@ -108,7 +124,6 @@ const server = http.createServer((req, res) => {
           return;
         }
         
-        // Ošetření záporných čísel
         if (quantity <= 0) {
           res.writeHead(400, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({ success: false, error: 'Množství musí být kladné číslo' }));
@@ -116,6 +131,7 @@ const server = http.createServer((req, res) => {
         }
         
         const storage = JSON.parse(fs.readFileSync(STORAGE_FILE, 'utf8'));
+        const fundsData = JSON.parse(fs.readFileSync(FUNDS_FILE, 'utf8'));
         const hatIndex = storage.hats.findIndex(h => h.id === hatId);
         
         if (hatIndex === -1) {
@@ -125,17 +141,14 @@ const server = http.createServer((req, res) => {
         }
         
         const hat = storage.hats[hatIndex];
-        
-        // Proveď nákup - odeber item ze skladových zásob
         const totalPrice = hat.price * quantity;
         
-        // Zvýš cenu o 1 klíč
-        hat.price += 1;
+        // Přidej peníze z prodeje
+        fundsData.funds += totalPrice;
+        fs.writeFileSync(FUNDS_FILE, JSON.stringify(fundsData, null, 2));
         
-        // Odeber item ze storage (červený si ho vezme celý)
+        // Odeber item ze storage
         storage.hats.splice(hatIndex, 1);
-        
-        // Ulož změny
         fs.writeFileSync(STORAGE_FILE, JSON.stringify(storage, null, 2));
         
         // Zaznamenej transakci
@@ -151,7 +164,7 @@ const server = http.createServer((req, res) => {
         });
         fs.writeFileSync(TRANSACTIONS_FILE, JSON.stringify(transactions, null, 2));
         
-        // Broadcast update všem WebSocket klientům
+        // Broadcast update
         broadcastUpdate('purchase', {
           hat: hat.name,
           quantity,
@@ -177,46 +190,65 @@ const server = http.createServer((req, res) => {
     return;
   }
   
-  // WEBHOOK - Příjem produktů od červeného týmu
-  if (url.pathname === '/webhook/red' && req.method === 'POST') {
+  // POST /api/hats/sell - prodej čepičky Red teamu
+  if (url.pathname === '/api/hats/sell' && req.method === 'POST') {
     let body = '';
     req.on('data', chunk => body += chunk);
     req.on('end', () => {
       try {
-        const event = JSON.parse(body);
-        console.log('Webhook od červeného týmu:', event);
+        const { name, price, image } = JSON.parse(body);
         
-        // Zpracuj nový produkt od červených
-        if (event.type === 'new_product') {
-          const storage = JSON.parse(fs.readFileSync(STORAGE_FILE, 'utf8'));
-          
-          // Najdi nejvyšší ID
-          const maxId = storage.hats.reduce((max, h) => Math.max(max, h.id), 0);
-          
-          // Přidej nový produkt
-          const newHat = {
-            id: maxId + 1,
-            name: event.name,
-            price: event.price,
-            image: event.image || 'default.png'
-          };
-          
-          storage.hats.push(newHat);
-          fs.writeFileSync(STORAGE_FILE, JSON.stringify(storage, null, 2));
-          
-          // Broadcast update
-          broadcastUpdate('new_product', {
-            hat: newHat.name,
-            price: newHat.price,
-            source: 'Red Team'
-          });
+        if (!name || !price) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ success: false, error: 'name a price jsou povinné' }));
+          return;
         }
+        
+        const storage = JSON.parse(fs.readFileSync(STORAGE_FILE, 'utf8'));
+        const fundsData = JSON.parse(fs.readFileSync(FUNDS_FILE, 'utf8'));
+        
+        // Kontrola fondů
+        if (fundsData.funds < price) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ 
+            success: false, 
+            error: 'Nedostatek fondů',
+            currentFunds: fundsData.funds,
+            requiredFunds: price
+          }));
+          return;
+        }
+        
+        // Najdi nejvyšší ID
+        const maxId = storage.hats.reduce((max, h) => Math.max(max, h.id), 0);
+        
+        // Přidej nový produkt
+        const newHat = {
+          id: maxId + 1,
+          name: name,
+          price: Math.ceil(price * 1.3), // Prodáváme o 30% dráž
+          image: image || 'Ghostly_Gibus.png'
+        };
+        
+        // Odečti peníze
+        fundsData.funds -= price;
+        fs.writeFileSync(FUNDS_FILE, JSON.stringify(fundsData, null, 2));
+        
+        storage.hats.push(newHat);
+        fs.writeFileSync(STORAGE_FILE, JSON.stringify(storage, null, 2));
+        
+        // Broadcast update
+        broadcastUpdate('new_product', {
+          hat: newHat.name,
+          price: newHat.price,
+          source: 'Purchase from Red Team'
+        });
         
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ 
           success: true, 
-          message: 'Webhook zpracován',
-          receivedEvent: event.type
+          message: 'Produkt zakoupen a přidán do skladových zásob',
+          data: newHat
         }));
       } catch (error) {
         res.writeHead(500, { 'Content-Type': 'application/json' });
@@ -236,7 +268,8 @@ const server = http.createServer((req, res) => {
         res.end('Obrázek nenalezen');
       } else {
         const ext = path.extname(imagePath);
-        const contentType = ext === '.png' ? 'image/png' : ext === '.jpg' || ext === '.jpeg' ? 'image/jpeg' : 'image/png';
+        const contentType = ext === '.png' ? 'image/png' : 
+                           ext === '.jpg' || ext === '.jpeg' ? 'image/jpeg' : 'image/png';
         res.writeHead(200, { 'Content-Type': contentType });
         res.end(content);
       }
@@ -244,7 +277,7 @@ const server = http.createServer((req, res) => {
     return;
   }
   
-  // Statické soubory (frontend)
+  // Statické soubory
   if (req.method === 'GET') {
     let filePath = url.pathname === '/' ? '/index.html' : url.pathname;
     filePath = path.join('public', filePath);
@@ -277,12 +310,10 @@ const server = http.createServer((req, res) => {
     return;
   }
   
-  // 404 pro ostatní requesty
   res.writeHead(404, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify({ success: false, error: 'Endpoint nenalezen' }));
 });
 
-// Spuštění serverů
 initStorage();
 
 server.listen(PORT, () => {
@@ -290,7 +321,7 @@ server.listen(PORT, () => {
   console.log(`WebSocket server běží na ws://localhost:${WS_PORT}`);
   console.log(`\nDostupné endpointy:`);
   console.log(`   GET  /api/hats          - Zobrazení skladových zásob`);
-  console.log(`   POST /api/hats/buy      - Nákup čepičky`);
-  console.log(`   POST /webhook/red       - Webhook pro červený tým`);
+  console.log(`   POST /api/hats/buy      - Nákup čepičky (Red team kupuje od Blue)`);
+  console.log(`   POST /api/hats/sell     - Prodej čepičky (Blue kupuje od Red)`);
   console.log(`\nFrontend: http://localhost:${PORT}`);
 });

@@ -1,34 +1,16 @@
 {
   "hats": [
     {
-      "id": 1,
-      "name": "Team Captain",
-      "price": 150,
-      "image": "Team_Captain.png"
-    },
-    {
       "id": 2,
       "name": "Unusual Burning Flames",
       "price": 300,
       "image": "Burning_Flames.png"
     },
     {
-      "id": 3,
-      "name": "Gibus",
-      "price": 10,
-      "image": "Ghostly_Gibus.png"
-    },
-    {
       "id": 4,
       "name": "Bill's Hat",
       "price": 75,
       "image": "Bills_Hat.png"
-    },
-    {
-      "id": 5,
-      "name": "Towering Pillar",
-      "price": 45,
-      "image": "Towering_Pillar.png"
     }
   ]
 }

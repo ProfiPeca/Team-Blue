@@ -1,8 +1,10 @@
 // WebSocket připojení
 let ws = null;
 let hatsData = [];
+let currentFunds = 0;
 
 const stock = document.getElementById('stock');
+const fundsDisplay = document.getElementById('funds');
 
 // Generování itemu v TF2 stylu
 const generateItem = (id, name, price, image) => {
@@ -13,6 +15,9 @@ const generateItem = (id, name, price, image) => {
   let img = new Image();
   img.src = `/images/${image}`;
   img.alt = name;
+  img.onerror = () => {
+    img.src = '/images/Ghostly_Gibus.png'; // Fallback image
+  };
   
   let nameElem = document.createElement('p');
   nameElem.textContent = name;
@@ -20,12 +25,52 @@ const generateItem = (id, name, price, image) => {
   let priceElem = document.createElement('p');
   priceElem.textContent = `${price} keys`;
   
+  // Sell button (hover)
+  let sellBtn = document.createElement('button');
+  sellBtn.className = 'sell-button';
+  sellBtn.textContent = 'Sell to Red Team';
+  sellBtn.onclick = (e) => {
+    e.stopPropagation();
+    sellToRedTeam(id, name, price, image);
+  };
+  
   container.appendChild(img);
   container.appendChild(nameElem);
   container.appendChild(priceElem);
+  container.appendChild(sellBtn);
   
   return container;
 };
+
+// Prodej Red teamu
+async function sellToRedTeam(id, name, price, image) {
+  try {
+    const response = await fetch('http://localhost:3000/api/products/buy', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: name,
+        price: Math.ceil(price * 0.8), // Prodáváme za 80% ceny
+        image: image
+      })
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      console.log(`Prodáno Red teamu: ${name}`);
+      // Update se provede přes WebSocket
+    } else {
+      console.error('Prodej se nezdařil:', result.error);
+      alert('Prodej se nezdařil: ' + result.error);
+    }
+  } catch (error) {
+    console.error('Chyba při prodeji:', error);
+    alert('Chyba při komunikaci se serverem');
+  }
+}
 
 // Připojení k WebSocket serveru
 function connectWebSocket() {
@@ -56,10 +101,18 @@ function connectWebSocket() {
 function handleWebSocketMessage(message) {
   console.log('WebSocket zpráva:', message);
   
+  // Update funds
+  if (message.funds !== undefined) {
+    currentFunds = message.funds;
+    updateFundsDisplay();
+  }
+  
   switch (message.type) {
     case 'init':
       hatsData = message.data;
+      currentFunds = message.funds || 0;
       renderHats();
+      updateFundsDisplay();
       break;
       
     case 'purchase':
@@ -94,6 +147,13 @@ function updateConnectionStatus(isOnline) {
   }
 }
 
+// Update zobrazení fondů
+function updateFundsDisplay() {
+  if (fundsDisplay) {
+    fundsDisplay.textContent = `${currentFunds} keys`;
+  }
+}
+
 // Načtení dat z REST API
 async function fetchHats() {
   try {
@@ -102,7 +162,9 @@ async function fetchHats() {
     
     if (result.success) {
       hatsData = result.data;
+      currentFunds = result.funds || 0;
       renderHats();
+      updateFundsDisplay();
     }
   } catch (error) {
     console.error('Chyba při načítání dat:', error);

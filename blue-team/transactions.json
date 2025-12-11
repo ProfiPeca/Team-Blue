@@ -1,103 +1,31 @@
 {
   "transactions": [
     {
-      "id": 1764855816272,
-      "hatId": 2,
-      "hatName": "Unusual Burning Flames",
-      "quantity": 1,
-      "totalPrice": 300,
-      "buyer": "Cecilka",
-      "timestamp": "2025-12-04T13:43:36.272Z"
-    },
-    {
-      "id": 1764855938756,
-      "hatId": 2,
-      "hatName": "Unusual Burning Flames",
-      "quantity": 1,
-      "totalPrice": 300,
-      "buyer": "Cecilka",
-      "timestamp": "2025-12-04T13:45:38.756Z"
-    },
-    {
-      "id": 1764855941409,
+      "id": 1765462641297,
       "hatId": 3,
       "hatName": "Gibus",
       "quantity": 1,
       "totalPrice": 10,
-      "buyer": "Cecilka",
-      "timestamp": "2025-12-04T13:45:41.409Z"
+      "buyer": "Red Team",
+      "timestamp": "2025-12-11T14:17:21.297Z"
     },
     {
-      "id": 1764855942088,
-      "hatId": 3,
-      "hatName": "Gibus",
+      "id": 1765462774731,
+      "hatId": 5,
+      "hatName": "Towering Pillar",
       "quantity": 1,
-      "totalPrice": 10,
-      "buyer": "Cecilka",
-      "timestamp": "2025-12-04T13:45:42.088Z"
+      "totalPrice": 45,
+      "buyer": "Red Team",
+      "timestamp": "2025-12-11T14:19:34.731Z"
     },
     {
-      "id": 1764855942635,
-      "hatId": 3,
-      "hatName": "Gibus",
+      "id": 1765462833192,
+      "hatId": 1,
+      "hatName": "Team Captain",
       "quantity": 1,
-      "totalPrice": 10,
-      "buyer": "Cecilka",
-      "timestamp": "2025-12-04T13:45:42.635Z"
-    },
-    {
-      "id": 1764855959747,
-      "hatId": 3,
-      "hatName": "Gibus",
-      "quantity": 1,
-      "totalPrice": 10,
-      "buyer": "Cecilka",
-      "timestamp": "2025-12-04T13:45:59.747Z"
-    },
-    {
-      "id": 1764855960054,
-      "hatId": 3,
-      "hatName": "Gibus",
-      "quantity": 1,
-      "totalPrice": 10,
-      "buyer": "Cecilka",
-      "timestamp": "2025-12-04T13:46:00.054Z"
-    },
-    {
-      "id": 1764855960324,
-      "hatId": 3,
-      "hatName": "Gibus",
-      "quantity": 1,
-      "totalPrice": 10,
-      "buyer": "Cecilka",
-      "timestamp": "2025-12-04T13:46:00.324Z"
-    },
-    {
-      "id": 1764855960624,
-      "hatId": 3,
-      "hatName": "Gibus",
-      "quantity": 1,
-      "totalPrice": 10,
-      "buyer": "Cecilka",
-      "timestamp": "2025-12-04T13:46:00.624Z"
-    },
-    {
-      "id": 1764855960906,
-      "hatId": 3,
-      "hatName": "Gibus",
-      "quantity": 1,
-      "totalPrice": 10,
-      "buyer": "Cecilka",
-      "timestamp": "2025-12-04T13:46:00.906Z"
-    },
-    {
-      "id": 1765459943256,
-      "hatId": 3,
-      "hatName": "Gibus",
-      "quantity": 1,
-      "totalPrice": 10,
-      "buyer": "anonymous",
-      "timestamp": "2025-12-11T13:32:23.256Z"
+      "totalPrice": 150,
+      "buyer": "Red Team",
+      "timestamp": "2025-12-11T14:20:33.192Z"
     }
   ]
 }
