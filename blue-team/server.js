@@ -62,7 +62,7 @@ wss.on('connection', ws => {
   });
 });
 
-// --- RED kupuje od BLU ---
+// --- RED kupuje od BLU (WebSocket) ---
 async function buyFromRed(id) {
   const item = products[id];
   if (!item) return console.warn('Item not found');
@@ -82,6 +82,22 @@ app.get('/api/hats', (req, res) => {
     data: Object.entries(products).map(([id, item]) => ({ id, ...item })),
     funds
   });
+});
+
+// --- REST API buy endpoint ---
+app.post('/api/buy/:id', (req, res) => {
+  const id = req.params.id;
+  const item = products[id];
+  if (!item) return res.status(404).json({ success: false, msg: 'Item not found' });
+
+  funds += item.price;
+  delete products[id];
+  saveProducts(products);
+
+  broadcast({ type: 'removeBLU', id, price: item.price });
+
+  console.log(`REST BUY: RED koupil ${item.name} za ${item.price} keys`);
+  res.json({ success: true, item });
 });
 
 // --- Init ---
