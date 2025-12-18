@@ -55,7 +55,7 @@ wss.on('connection', ws => {
       const data = JSON.parse(msg);
       if (data.type === 'buy' && data.id) {
         buyFromRed(data.id);
-      }
+      } 
     } catch (err) {
       console.error('WS message error:', err);
     }
@@ -64,15 +64,33 @@ wss.on('connection', ws => {
 
 // --- RED kupuje od BLU (WebSocket) ---
 async function buyFromRed(id) {
-  const item = products[id];
+  const item = redProducts[id];
   if (!item) return console.warn('Item not found');
   
-  funds += item.price; 
-  delete products[id]; 
+  const resp = await fetch('http://localhost:3000/api/buy/' + id, {
+    method: 'POST',
+  })
+    console.log(resp);
+    const json = await resp.json()
+    console.log(json)
+  if (json.error) {
+    console.log('Buying item failed')
+    return
+  }
+  funds += json.price; 
+  delete redProducts[id]; 
+    products[id] = {
+    name: json.name,
+    price: json.price,
+    image: json.image    
+    }
   saveProducts(products);
 
-  broadcast({ type: 'removeBLU', id, price: item.price });
-  console.log(`RED koupil: ${item.name} za ${item.price} keys`);
+   
+
+  broadcast({ type: 'removeRED', id, price: json.price });
+  broadcast({ type: 'addBLU', id, item: {name: json.name, price: json.price, image: json.image} });
+  console.log(`RED koupil: ${json.name} za ${json.price} keys`);
 }
 
 // --- REST API pro BLU sklad ---
@@ -92,9 +110,11 @@ app.post('/api/buy/:id', (req, res) => {
 
   funds += item.price;
   delete products[id];
+  redProducts[id] = item;
   saveProducts(products);
 
   broadcast({ type: 'removeBLU', id, price: item.price });
+  broadcast({ type: 'addRED', id, item})
 
   console.log(`REST BUY: RED koupil ${item.name} za ${item.price} keys`);
   res.json({ success: true, item });
