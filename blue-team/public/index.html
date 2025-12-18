@@ -1,22 +1,32 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Team BLU - TF2 Hat Trading</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Team BLU – TF2 Hat Trading</title>
+  <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <header>
-    <img class="logo" src="/teamblu.png" alt="Team BLU logo">
-    <h1>Team BLU</h1>
-  </header>
-  
-  <main id="main">
-    <h1>Team BLU Backpack</h1>
-    <div id="stock" class="itemcontainer"></div>
-  </main>
 
-  <script src="client.js"></script>
+<header>
+  <img class="logo" src="/teamblu.png" alt="Team BLU logo">
+  <h1>Team BLU</h1>
+  <p>Funds: <span id="funds" class="funds">0</span> keys</p>
+</header>
+
+<main>
+  <section>
+    <h2>Team BLU Store (Prodáváme)</h2>
+    <div id="blu-store" class="itemcontainer"></div>
+  </section>
+
+  <section>
+    <h2>Team RED Store (Nakupujeme)</h2>
+    <div id="red-store" class="itemcontainer"></div>
+  </section>
+</main>
+
+<script src="/script.js"></script>
 </body>
 </html>
+

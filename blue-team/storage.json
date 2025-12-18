@@ -1,16 +1,42 @@
 {
-  "hats": [
-    {
-      "id": 2,
-      "name": "Unusual Burning Flames",
-      "price": 300,
-      "image": "Burning_Flames.png"
-    },
-    {
-      "id": 4,
-      "name": "Bill's Hat",
-      "price": 75,
-      "image": "Bills_Hat.png"
-    }
-  ]
+  "3": {
+    "name": "Gibus",
+    "price": 10,
+    "image": "Ghostly_Gibus.png"
+  },
+  "838dde4f-b84e-493b-b0a8-d70d8dfbeda6": {
+    "name": "Brain Bucket",
+    "price": 3,
+    "image": "Brain_Bucket.png"
+  },
+  "54436615-8e00-46e1-a4db-fd4705c4d84a": {
+    "name": "Team Captain",
+    "price": 3,
+    "image": "Team_Captain.png"
+  },
+  "47f9d839-2e2d-4fca-b380-49a04ca45249": {
+    "name": "Co-Pilot",
+    "price": 3,
+    "image": "Co-Pilot.png"
+  },
+  "ca7b8ffa-e434-42f7-8b31-96af2b971129": {
+    "name": "Bomb Beanie",
+    "price": 3,
+    "image": "Bomb_Beanie.png"
+  },
+  "fd29f767-96c8-4874-9335-1a74d193bdd4": {
+    "name": "Control Patrol",
+    "price": 3,
+    "image": "Control_Patrol.png"
+  },
+  "df35161f-56d2-4d7c-adaf-3a6c35344e9f": {
+    "name": "Counterfeit Billycock",
+    "price": 3,
+    "image": "Counterfeit_Billycock.png"
+  },
+  "b3be7511-4402-466c-9d7e-568f766075f2": {
+    "name": "Federal Casemaker",
+    "price": 3,
+    "image": "Federal_Casemaker.png"
+  }
 }
