@@ -1,1 +1,92 @@
-{}
+{
+  "3": {
+    "name": "Gibus",
+    "price": 10,
+    "image": "Ghostly_Gibus.png"
+  },
+  "838dde4f-b84e-493b-b0a8-d70d8dfbeda6": {
+    "name": "Brain Bucket",
+    "price": 3,
+    "image": "Brain_Bucket.png"
+  },
+  "54436615-8e00-46e1-a4db-fd4705c4d84a": {
+    "name": "Team Captain",
+    "price": 3,
+    "image": "Team_Captain.png"
+  },
+  "47f9d839-2e2d-4fca-b380-49a04ca45249": {
+    "name": "Co-Pilot",
+    "price": 3,
+    "image": "Co-Pilot.png"
+  },
+  "ca7b8ffa-e434-42f7-8b31-96af2b971129": {
+    "name": "Bomb Beanie",
+    "price": 3,
+    "image": "Bomb_Beanie.png"
+  },
+  "fd29f767-96c8-4874-9335-1a74d193bdd4": {
+    "name": "Control Patrol",
+    "price": 3,
+    "image": "Control_Patrol.png"
+  },
+  "df35161f-56d2-4d7c-adaf-3a6c35344e9f": {
+    "name": "Counterfeit Billycock",
+    "price": 3,
+    "image": "Counterfeit_Billycock.png"
+  },
+  "b3be7511-4402-466c-9d7e-568f766075f2": {
+    "name": "Federal Casemaker",
+    "price": 3,
+    "image": "Federal_Casemaker.png"
+  },
+  "453e057a-6329-4a18-89ab-de39fdb50d54": {
+    "name": "Horace",
+    "price": 3,
+    "image": "Horace.png"
+  },
+  "733f837a-13da-4d8b-af66-380ee6404389": {
+    "name": "Mighty Mitre",
+    "price": 3,
+    "image": "Mighty_Mitre.png"
+  },
+  "c29221e4-2b40-4d9a-8520-995181501b4b": {
+    "name": "Potassium Bonnet",
+    "price": 3,
+    "image": "Potassium_Bonnet.png"
+  },
+  "7aa01176-6975-4266-b6b0-c4d5d98241c7": {
+    "name": "Ghostly Gibus",
+    "price": 3,
+    "image": "Ghostly_Gibus.png"
+  },
+  "0c5233d4-de13-4b6a-8744-0092d1e638a8": {
+    "name": "Lil'Bitey",
+    "price": 3,
+    "image": "Lil'_Bitey.png"
+  },
+  "a132e337-2a21-42a1-8c51-af62eda891ab": {
+    "name": "Max's Severed Head",
+    "price": 3,
+    "image": "Max's_Severed_Head.png"
+  },
+  "287ea8c8-c1d5-4d91-80aa-59bb0976371f": {
+    "name": "Saxton",
+    "price": 3,
+    "image": "Saxton.png"
+  },
+  "c637cd5d-20d8-4795-b6af-6fd8469fb6ac": {
+    "name": "Sergeant's Drill Hat",
+    "price": 3,
+    "image": "Sergeant's_Drill_Hat.png"
+  },
+  "f02fb7d4-b487-4d46-95bb-79b27e8c8cdc": {
+    "name": "Spycrab",
+    "price": 3,
+    "image": "Spycrab.png"
+  },
+  "6158313b-e4ec-4403-a355-69a6a3d8c048": {
+    "name": "Thousand-Yard Stare",
+    "price": 3,
+    "image": "Thousand-Yard_Stare.png"
+  }
+}

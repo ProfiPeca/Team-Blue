@@ -3,7 +3,7 @@ const express = require('express');
 const http = require('http');
 const WebSocket = require('ws');
 const fs = require('fs');
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+
 
 const PORT = 3002;
 const STORAGE_FILE = 'storage.json';
