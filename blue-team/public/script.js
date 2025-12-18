@@ -6,7 +6,6 @@ let redItems = {};
 let funds = 0;
 
 /* ---------- UI ---------- */
-
 function createItem(item, actionText, action) {
   const div = document.createElement('div');
   div.className = 'item';
@@ -31,18 +30,13 @@ function createItem(item, actionText, action) {
 
 function buyFromRed(id) {
   if (!ws || ws.readyState !== WebSocket.OPEN) {
-    console.warn('WebSocket není připojen');
+    console.warn('WebSocket not connected');
     return;
   }
-
-  ws.send(JSON.stringify({
-    type: 'buy',
-    id: id
-  }));
+  ws.send(JSON.stringify({ type: 'buy', id }));
 }
 
 /* ---------- RENDER ---------- */
-
 function render() {
   bluStore.innerHTML = '';
   redStore.innerHTML = '';
@@ -66,16 +60,12 @@ function render() {
     bluStore.appendChild(div);
   });
 
-  // RED produkty – stále možnost koupit
   Object.entries(redItems).forEach(([id, item]) =>
-    redStore.appendChild(
-      createItem(item, 'Buy', () => buyFromRed(id))
-    )
+    redStore.appendChild(createItem(item, 'Buy', () => buyFromRed(id)))
   );
 }
 
 /* ---------- REST / WS ---------- */
-
 async function fetchBlu() {
   try {
     const res = await fetch('/api/hats');
@@ -84,13 +74,11 @@ async function fetchBlu() {
     funds = json.funds || 0;
     render();
   } catch (err) {
-    console.error('Chyba při načítání BLU sklad:', err);
+    console.error('Error fetching BLU storage:', err);
   }
 }
 
-
 /* ---------- WebSocket ---------- */
-
 function connectWS() {
   ws = new WebSocket('ws://localhost:3002');
 
@@ -132,7 +120,6 @@ function connectWS() {
 }
 
 /* ---------- INIT ---------- */
-
 document.addEventListener('DOMContentLoaded', () => {
   bluStore = document.getElementById('blu-store');
   redStore = document.getElementById('red-store');

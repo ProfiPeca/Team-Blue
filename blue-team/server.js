@@ -3,6 +3,7 @@ const express = require('express');
 const http = require('http');
 const WebSocket = require('ws');
 const fs = require('fs');
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
 const PORT = 3002;
 const STORAGE_FILE = 'storage.json';
@@ -45,7 +46,7 @@ function broadcast(obj) {
   });
 }
 
-// --- WS ---
+// --- WebSocket ---
 wss.on('connection', ws => {
   ws.send(JSON.stringify({ type: 'connect', products, redProducts, funds }));
 
@@ -56,41 +57,38 @@ wss.on('connection', ws => {
         buyFromRed(data.id);
       }
     } catch (err) {
-      console.error(err);
+      console.error('WS message error:', err);
     }
   });
 });
 
-// --- BLU -> RED purchase ---
+// --- RED kupuje od BLU ---
 async function buyFromRed(id) {
-  if (!redProducts[id]) return console.warn('item not found');
-  if (redProducts[id].price > funds) return console.warn('not enough funds');
+  const item = products[id];
+  if (!item) return console.warn('Item not found');
+  
+  funds += item.price; 
+  delete products[id]; 
+  saveProducts(products);
 
-  try {
-    const res = await fetch(`http://localhost:3000/api/buy/${id}`, { method: 'POST' });
-    const json = await res.json();
-    if (!res.ok || !json.name) return console.error('RED purchase failed');
-
-    funds -= json.price;
-
-    const uuid = crypto.randomUUID();
-    products[uuid] = { name: json.name, price: json.price + 1, image: json.image };
-    saveProducts(products);
-
-    broadcast({ type: 'addBLU', id: uuid, item: products[uuid] });
-    delete redProducts[id];
-    broadcast({ type: 'removeRED', id, price: json.price });
-
-  } catch (err) {
-    console.error('buyFromRed error:', err);
-  }
+  broadcast({ type: 'removeBLU', id, price: item.price });
+  console.log(`RED koupil: ${item.name} za ${item.price} keys`);
 }
+
+// --- REST API pro BLU sklad ---
+app.get('/api/hats', (req, res) => {
+  res.json({
+    success: true,
+    data: Object.entries(products).map(([id, item]) => ({ id, ...item })),
+    funds
+  });
+});
 
 // --- Init ---
 initStorage();
 products = loadProducts();
 
-// --- Fetch RED products ---
+// --- Fetch RED produkty (pro WS synchronizaci) ---
 async function fetchRedProducts() {
   try {
     const res = await fetch('http://localhost:3000/api/products');
