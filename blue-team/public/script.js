@@ -48,12 +48,25 @@ function render() {
   redStore.innerHTML = '';
   fundsEl.textContent = funds;
 
-  bluItems.forEach(item =>
-    bluStore.appendChild(
-      createItem(item, 'Sell to RED', () => sellToRed(item.id))
-    )
-  );
+  bluItems.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'item';
 
+    const img = new Image();
+    img.src = `/images/${item.image}`;
+    img.onerror = () => img.src = '/images/Ghostly_Gibus.png';
+
+    const name = document.createElement('p');
+    name.textContent = item.name;
+
+    const price = document.createElement('p');
+    price.textContent = `${item.price} keys`;
+
+    div.append(img, name, price);
+    bluStore.appendChild(div);
+  });
+
+  // RED produkty – stále možnost koupit
   Object.entries(redItems).forEach(([id, item]) =>
     redStore.appendChild(
       createItem(item, 'Buy', () => buyFromRed(id))
@@ -75,23 +88,6 @@ async function fetchBlu() {
   }
 }
 
-async function sellToRed(hatId) {
-  try {
-    const res = await fetch('/api/hats/buy', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ hatId })
-    });
-    const json = await res.json();
-    if (json.success) {
-      bluItems = bluItems.filter(i => i.id !== hatId);
-      funds += json.data?.totalPrice || 0;
-      render();
-    }
-  } catch (err) {
-    console.error('Prodej na RED selhal:', err);
-  }
-}
 
 /* ---------- WebSocket ---------- */
 

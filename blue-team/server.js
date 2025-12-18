@@ -71,15 +71,12 @@ async function buyFromRed(id) {
     const json = await res.json();
     if (!res.ok || !json.name) return console.error('RED purchase failed');
 
-    // Deduct funds
     funds -= json.price;
 
-    // Add to local BLU storage
     const uuid = crypto.randomUUID();
     products[uuid] = { name: json.name, price: json.price + 1, image: json.image };
     saveProducts(products);
 
-    // Broadcast changes
     broadcast({ type: 'addBLU', id: uuid, item: products[uuid] });
     delete redProducts[id];
     broadcast({ type: 'removeRED', id, price: json.price });
